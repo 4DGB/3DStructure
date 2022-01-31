@@ -1,0 +1,8 @@
+GSM1551620_HIC071.hic
+venv/
+__pycache__/
+lammps_dir/
+out/
+src/build/
+src/dist/
+*.egg-info
