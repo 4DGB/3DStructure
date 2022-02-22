@@ -153,7 +153,10 @@ def read_dumpfile(path: Path):
     Read in a LAMMPS output dump
     """
     f = open(path, 'r')
-    lines = f.read().splitlines()
+    lines = list(map(
+        str.strip,
+        f.read().splitlines()
+    ))
     f.close()
 
     dump = {}
