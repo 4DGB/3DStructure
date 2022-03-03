@@ -26,13 +26,22 @@ def write_contacts(path: Path, contacts):
     """
     with open(path, 'w') as f:
         writer = csv.writer(f, delimiter='\t')
-        
+        seen = set()
+
+        # Write out a contact record if that pair of coordinates
+        # hasn't been seen before
+        def write_new_row(coords, value):
+            if coords not in seen:
+                writer.writerow([coords[0], coords[1], value])
+                seen.add(coords)
+
         for row in contacts:
             x = int(row[0])
             y = int(row[1])
 
             # Include a zero for where each value contacts itself
-            writer.writerow([x, x, 0.0])
+            write_new_row( (x,x), 0.0 )
+            write_new_row( (y,y), 0.0 )
             # Include both "sides" of the contact map
-            writer.writerow([x, y, row[2]])
-            writer.writerow([y, x, row[2]])
+            write_new_row( (x, y), row[2] )
+            write_new_row( (y, x), row[2] )
