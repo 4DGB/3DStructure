@@ -32,9 +32,9 @@ def run_lammps(dir, records, lammps="lmp", verbose=False):
             stdout=(None if verbose else subprocess.DEVNULL)
         )
         if proc.returncode != 0:
-            raise LAMMPSError(f"LAMMPS exited with error! (exit code: {proc.returncode}")
+            raise LAMMPSError(f"Exited with error. (exit code: {proc.returncode}")
 
-        data = read_dumpfile("sim.dump")
+        data = read_dumpfile( Path("sim.dump") )
 
     return data
 

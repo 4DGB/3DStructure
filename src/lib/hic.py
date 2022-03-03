@@ -1,5 +1,7 @@
 from io import BufferedReader
 from pathlib import Path
+import multiprocessing as mp
+
 import struct
 
 import numpy as np
@@ -131,35 +133,86 @@ class HIC:
 
     def get_contact_records(self, chromosome, resolution, threshold):
         # Load records via hic-straw
-        records = straw(
-            'observed',
-            'KR',
-            str(self.path),
-            chromosome,
-            chromosome,
-            'BP',
-            resolution
-        )
 
-        # Convert to numpy table
-        # each row indexed by [binX, binY, counts]
-        table = np.zeros((len(records), 3))
-        index = 0 
-        for contact in records:
-            table[index][0] = int(contact.binX)
-            table[index][1] = int(contact.binY)
-            table[index][2] = contact.counts
-            index += 1
+        # Check that chromosome and resolution are valid
+        if chromosome not in self.metadata.chromosomes:
+            allowed = list( self.metadata.chromosomes.keys() )
+            raise HICError(
+                f"Chromosome '{chromosome}' is not available. "
+                f"Available chromomesomes are: {allowed}"
+            )
 
-        # Convert coordinates to units of resolution. i.e. particle numbers
-        table[:, 0] //= resolution
-        table[:, 1] //= resolution
-        table[:, 0] += 1
-        table[:, 1] += 1
+        if resolution not in self.metadata.basepair_resolutions:
+            allowed = self.metadata.basepair_resolutions
+            raise HICError(
+                f"Resolution '{resolution}' is not available. "
+                f"Available resolutions are: {allowed}"
+            )
 
-        # Filter by threshold
-        table = table[ table[:,2] > threshold ]
-        # Filter out self-contacts
-        table = table[ table[:,0] != table[:,1] ]
+        # hic-straw terminates ungracefully if there's an error
+        # (because of course it does), so we use multiprocessing
+        # to execute it in a fork
+
+        # Function for child process:
+        # Runs hic-straw, then parses the resulting contact records
+        # into a numpy array
+        def work(pipe):
+            # Run hic-straw
+            records = straw(
+                'observed',
+                'KR',
+                str(self.path),
+                chromosome,
+                chromosome,
+                'BP',
+                resolution
+            )
+            if not records:
+                print("No records found!")
+                exit(1)
+
+            # Convert to numpy table
+            # each row indexed by [binX, binY, counts]
+            table = np.zeros((len(records), 3))
+            index = 0 
+            for contact in records:
+                table[index][0] = int(contact.binX)
+                table[index][1] = int(contact.binY)
+                table[index][2] = contact.counts
+                index += 1
+
+            # Convert coordinates to units of resolution. i.e. particle numbers
+            table[:, 0] //= resolution
+            table[:, 1] //= resolution
+            table[:, 0] += 1
+            table[:, 1] += 1
+
+            # Filter by threshold
+            table = table[ table[:,2] > threshold ]
+            # Filter out self-contacts
+            table = table[ table[:,0] != table[:,1] ]
+
+            pipe.send(table)
+            pipe.close()
+
+        # end def work()
+
+        mp.set_start_method('fork')
+        read, write = mp.Pipe(duplex=False)
+
+        # Start processing in child
+        p = mp.Process(target=work, args=(write,))
+        p.start()
+        write.close() # Close write end in parent
+
+        # Recieve records from child, then reap it
+        try:
+            table = read.recv()
+        except EOFError:
+            raise HICError("hic-straw died unexpectedly")
+
+        p.join()
+        if p.exitcode != 0:
+            raise HICError("Error loading contact records.")
 
         return table
