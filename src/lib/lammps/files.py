@@ -48,7 +48,7 @@ def write_inputfile(path, datafile_name, n, timesteps, bondconnect):
             pair_coeff      * * 1.0 1.0
 
             bond_style hybrid harmonic fene
-            bond_coeff 1 fene 30.0 25 1.0 1.0
+            bond_coeff 1 fene 30.0 55 1.0 1.0
             bond_coeff 2 harmonic  1.0 2.2
             special_bonds fene
 
