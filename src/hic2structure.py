@@ -3,10 +3,10 @@
 import argparse
 from pathlib import Path
 
-from lib.hic import HIC, HICError
-from lib.lammps import run_lammps, LAMMPSError
-from lib.out import write_structure, write_contacts
-from lib.contact import find_contacts
+from hic2structure_lib.hic import HIC, HICError
+from hic2structure_lib.lammps import run_lammps, LAMMPSError
+from hic2structure_lib.out import write_structure, write_contacts
+from hic2structure_lib.contact import find_contacts
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
