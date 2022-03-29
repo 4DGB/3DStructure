@@ -9,7 +9,7 @@ import numpy as np
 
 from .util import random_walk, create_molecule_tags, create_bonds, create_angles
 
-def write_inputfile(path, datafile_name, n, timesteps, bondconnect):
+def write_inputfile(path, datafile_name, n, timesteps, bond_coeff, bondconnect):
     """
     Write a LAMMPS input file to the given path
     """
@@ -48,7 +48,7 @@ def write_inputfile(path, datafile_name, n, timesteps, bondconnect):
             pair_coeff      * * 1.0 1.0
 
             bond_style hybrid harmonic fene
-            bond_coeff 1 fene 30.0 55 1.0 1.0
+            bond_coeff 1 fene 30.0 {bond_coeff} 1.0 1.0
             bond_coeff 2 harmonic  1.0 2.2
             special_bonds fene
 
@@ -124,7 +124,7 @@ def write_datafile(path, n, lengths, spacing, dimensions):
             for i in range(len(angles)):
                 f.write(f'\n{i + 1}\t1\t{angles[i][0]}\t{angles[i][1]}\t{angles[i][2]}')
 
-def write_input_deck(dir: Path, records):
+def write_input_deck(dir: Path, timesteps, bond_coeff, records):
     """
     Write a LAMMPS input file and data file into the given
     directory for a simulation on the given contact records
@@ -136,7 +136,6 @@ def write_input_deck(dir: Path, records):
     spacing = 3.0  # lattice spacing
     lattice_numbers = np.array([200, 200, 200])
     dimensions = lattice_numbers * 2  # dimensions of box
-    timesteps = 1000000
 
     datafile_name=f"random_coil_N{n}.dat"
 
@@ -146,7 +145,7 @@ def write_input_deck(dir: Path, records):
 
     # Create files
     write_datafile(datafile, n, lengths, spacing, dimensions)
-    write_inputfile(inputfile, datafile_name, n, timesteps, records)
+    write_inputfile(inputfile, datafile_name, n, timesteps, bond_coeff, records)
 
 def read_dumpfile(path: Path):
     """

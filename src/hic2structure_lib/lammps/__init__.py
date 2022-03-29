@@ -12,7 +12,7 @@ from .files import write_input_deck, read_dumpfile
 class LAMMPSError(Exception):
     pass
 
-def run_lammps(dir, records, lammps="lmp", verbose=False):
+def run_lammps(dir, records, lammps="lmp", verbose=False, bond_coeff=55, timesteps=1000000):
     """
     Run a LAMMPS simulation for the given records
     (using the given directory as the working dir)
@@ -24,7 +24,7 @@ def run_lammps(dir, records, lammps="lmp", verbose=False):
 
     dir = Path(dir).resolve()
 
-    write_input_deck(dir, records)
+    write_input_deck(dir, timesteps, bond_coeff, records)
 
     with cd_context(dir):
         proc = subprocess.run(
