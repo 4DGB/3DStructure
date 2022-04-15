@@ -3,7 +3,7 @@ from pathlib import Path
 import struct
 
 import numpy as np
-from straw import straw
+from hicstraw import straw
 
 from .types import ContactRecordSettings, ContactRecords
 
@@ -156,8 +156,7 @@ class HIC:
                 f"Available resolutions are: {allowed}"
             )
 
-        # hic-straw exits ungracefully on error,
-        # (because of course it does), so we try to
+        # hic-straw exits itself on error, so we try to
         # catch it with a try/except
         try:
             # Run hic-straw
