@@ -137,7 +137,7 @@ class HIC:
         '''
         chr = settings['chromosome']
         res = settings['resolution']
-        thr = settings['threshold']
+        thr = settings['count_threshold']
 
         # Load records via hic-straw
 

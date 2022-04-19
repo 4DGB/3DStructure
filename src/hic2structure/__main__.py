@@ -23,7 +23,8 @@ def settings_from_args(args: argparse.Namespace) -> Settings:
     return {
         'chromosome': args.chromosome,
         'resolution': args.resolution,
-        'threshold': args.threshold,
+        'count_threshold': args.count,
+        'distance_threshold': args.distance,
         'bond_coeff': args.bond_coeff,
         'timesteps': args.timesteps
     }
@@ -63,9 +64,16 @@ parser.add_argument(
     help="Bin resolution. (Defaults to 200000)"
 )
 parser.add_argument(
-    "--threshold",
-    type=float, default=2.0, metavar="NUM", dest="threshold",
-    help="Contact threshold. (Defaults to 2.0)"
+    "--count-threshold",
+    type=float, default=2.0, metavar="NUM", dest="count",
+    help="Threshold for reading contacts from Hi-C file. "\
+        "Records with a count lower than this are exluced. (Defaults to 2.0)"
+)
+parser.add_argument(
+    "--distance-threshold",
+    type=float, default=3.3, metavar="NUM", dest="distance",
+    help="Threshold for reading contacts from LAMMPS output. "\
+        "Records with a distance greater than this are excluded. (Defaults to 3.3)"
 )
 parser.add_argument(
     "-o", "--output",

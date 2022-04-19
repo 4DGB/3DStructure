@@ -16,7 +16,7 @@ def find_contacts(data: LAMMPSTimestep, settings: ContactRecordSettings) -> Cont
 
     distances = np.triu( squareform(pdist(coords)) )
     contact_IDarrays = np.where(
-        ( distances < settings['threshold'] ) & ( distances > 0 )\
+        ( distances < settings['distance_threshold'] ) & ( distances > 0 )\
     )
 
     C = np.ma.size( contact_IDarrays[0] )

@@ -44,7 +44,8 @@ class ContactRecordSettings(T.TypedDict):
     a Hi-C file
     '''
     chromosome: str
-    threshold: float
+    count_threshold: float
+    distance_threshold: float
     resolution: int
 
 class LAMMPSSettings(T.TypedDict):
@@ -54,7 +55,6 @@ class LAMMPSSettings(T.TypedDict):
     '''
     bond_coeff: int
     timesteps: int
-    threshold: float
 
 class Settings(ContactRecordSettings, LAMMPSSettings):
     '''
