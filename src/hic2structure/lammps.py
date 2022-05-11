@@ -15,9 +15,8 @@ from contextlib import contextmanager
 
 import textwrap
 import numpy as np
-import numpy.typing as npt
 
-from .types import LAMMPSSettings, ContactRecords, LAMMPSTimeseries, LAMMPSTimestep
+from .types import LAMMPSSettings, ContactSet, LAMMPSTimeseries, LAMMPSTimestep
 
 ########################
 # HELPER FUNCTIONS
@@ -99,7 +98,7 @@ def create_angles(n, lengths):
 def write_inputfile(
     path: Path, datafile_name: str,
     num_segments: int, settings: LAMMPSSettings,
-    records: ContactRecords    
+    records: ContactSet  
 ):
     """
     Write a LAMMPS input file to the given path
@@ -221,7 +220,7 @@ def write_datafile(
             for i in range(len(angles)):
                 f.write(f'\n{i + 1}\t1\t{angles[i][0]}\t{angles[i][1]}\t{angles[i][2]}')
 
-def write_input_deck(dir: Path, settings: LAMMPSSettings, records: ContactRecords):
+def write_input_deck(dir: Path, settings: LAMMPSSettings, records: ContactSet):
     """
     Write a LAMMPS input file and data file into the given
     directory for a simulation on the given contact records
@@ -309,7 +308,7 @@ def cd_context(dir):
         os.chdir(original)
 
 def run_lammps(
-    records: ContactRecords, settings: LAMMPSSettings,
+    records: ContactSet, settings: LAMMPSSettings,
     lammps_exec:str='lmp', copy_log_to:Path=None
 ) -> LAMMPSTimeseries:
     '''

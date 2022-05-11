@@ -6,8 +6,8 @@ import sys
 from .types import Settings
 from .hic import HIC, HICError
 from .lammps import LAMMPSError, run_lammps
-from .contacts import find_contacts
-from .out import write_contacts, write_structure
+from .contacts import contact_records_to_set
+from .out import write_structure
 
 ########################
 # GLOBALS
@@ -24,7 +24,7 @@ def settings_from_args(args: argparse.Namespace) -> Settings:
         'chromosome': args.chromosome,
         'resolution': args.resolution,
         'count_threshold': args.count,
-        'distance_threshold': args.distance,
+        'distance_threshold': 0, # Unused in the main script 
         'bond_coeff': args.bond_coeff,
         'timesteps': args.timesteps
     }
@@ -70,12 +70,6 @@ parser.add_argument(
         "Records with a count lower than this are exluced. (Defaults to 2.0)"
 )
 parser.add_argument(
-    "--distance-threshold",
-    type=float, default=3.3, metavar="NUM", dest="distance",
-    help="Threshold for reading contacts from LAMMPS output. "\
-        "Records with a distance greater than this are excluded. (Defaults to 3.3)"
-)
-parser.add_argument(
     "-o", "--output",
     type=str, default="./out", metavar="PATH", dest="output",
     help="Output directory. (Defaults to './out')"
@@ -93,7 +87,9 @@ parser.add_argument(
 parser.add_argument(
     "--bond-coeff",
     type=int, default=55, metavar="NUM", dest="bond_coeff",
-    help="FENE bond coefficient. (Defaults to 55)"
+    help="FENE bond coefficient. This affects the maximum allowed length of"\
+        " bonds in the LAMMPS simulation. If LAMMPS gives errors about bad"\
+        " bad FENE bonds, try increasing this value. (Defaults to 55)"
 )
 parser.add_argument(
     "--timesteps",
@@ -122,8 +118,8 @@ settings = settings_from_args(args)
 
 try:
     hic = HIC( Path(args.file) )
-    input_records = hic.get_contact_records(settings)
-    log_info(f"Loaded \033[1m{len(input_records)}\033[0m contact records from Hi-C file.")
+    inputs = contact_records_to_set( hic.get_contact_records(settings) )
+    log_info(f"Loaded \033[1m{len(inputs)}\033[0m contact records from Hi-C file.")
 except HICError as e:
     log_error(f"Error reading contact records: {e}")
     exit(1)
@@ -132,7 +128,7 @@ outdir.mkdir(parents=True, exist_ok=True)
 
 try:
     log_info(f"Running LAMMPS (this might take a while)...")
-    lammps_data = run_lammps(input_records, settings, args.lammps, copy_log_to=outdir/'sim.log')
+    lammps_data = run_lammps(inputs, settings, args.lammps, copy_log_to=outdir/'sim.log')
     log_info(f"LAMMPS finished.")
 except LAMMPSError as e:
     log_error(e)
@@ -140,13 +136,6 @@ except LAMMPSError as e:
 
 last_timestep = lammps_data[ sorted(lammps_data.keys())[-1] ]
 
-output_records = find_contacts(last_timestep, settings)
-log_info(f"Read \033[1m{len(output_records)}\033[0m contact records from final LAMMPS timestep.")
-
 structure_path = outdir/'structure.csv'
 write_structure( structure_path, last_timestep )
 log_info(f"Saved structure data to \033[1m{structure_path}\033[0m.")
-
-contact_path = outdir/'contactmap.tsv'
-write_contacts( contact_path, output_records )
-log_info(f"Saved contacp map to \033[1m{contact_path}\033[0m.")

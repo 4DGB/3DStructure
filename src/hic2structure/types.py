@@ -3,7 +3,7 @@
 #
 
 import typing as T
-from collections.abc import Mapping
+from collections.abc import Mapping, Set
 
 import numpy as np
 import numpy.typing as npt
@@ -19,6 +19,14 @@ import numpy.typing as npt
 # (Indexed by record, then by column)
 #
 ContactRecords = T.NewType('ContactRecords', npt.NDArray[np.float64])
+
+#
+# Represents a set of contact records *without* any
+# values. This is used to handle a "binary" contact
+# map where each pair of coordinates either contacts or
+# doesn't.
+#
+ContactSet = T.NewType('ContactSet', npt.NDArray[np.int64])
 
 #
 # Represents data for a single timestep of LAMMPS results

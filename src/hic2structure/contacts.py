@@ -5,9 +5,17 @@ Module for dealing with Contact Maps
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
-from .types import LAMMPSTimestep, ContactRecordSettings, ContactRecords
+from .types import LAMMPSTimestep, ContactRecordSettings, ContactRecords, ContactSet
 
-def find_contacts(data: LAMMPSTimestep, settings: ContactRecordSettings) -> ContactRecords:
+def contact_records_to_set(contacts: ContactRecords) -> ContactSet:
+    """
+    Given a series of ContactRecords, return a ContactSet, representing
+    just the coordinates pairs present in the contact records, without
+    their associated values
+    """
+    return ContactSet( contacts[:,:2].astype(np.int64) )
+
+def find_contacts(data: LAMMPSTimestep, settings: ContactRecordSettings) -> ContactSet:
     """
     Get contacts from a LAMMPS output dump
     """
@@ -38,4 +46,4 @@ def find_contacts(data: LAMMPSTimestep, settings: ContactRecordSettings) -> Cont
         )
     ) 
 
-    return ContactRecords(contacts)
+    return contact_records_to_set( ContactRecords(contacts) )
