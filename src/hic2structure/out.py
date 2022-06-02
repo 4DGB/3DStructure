@@ -52,7 +52,7 @@ def write_contact_set(path: Path, contacts: ContactSet):
     Write out a tsv file with contact record coordinates
     """
     with open(path, 'w') as f:
-        writer = csv.writer(f, delimter='\t')
+        writer = csv.writer(f, delimiter='\t')
         seen = set()
 
         # Write out a contact record if that pair of coordinates
