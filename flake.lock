@@ -62,7 +62,6 @@
       },
       "original": {
         "id": "mach-nix",
-        "ref": "3.5.0",
         "type": "indirect"
       }
     },
