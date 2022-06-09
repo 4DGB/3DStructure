@@ -6,5 +6,5 @@ out/
 build/
 dist/
 *.egg-info
-result/
+result
 outputs/
