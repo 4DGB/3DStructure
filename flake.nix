@@ -23,7 +23,7 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-compat, flake-utils, mach-nix }:
+  outputs = { self, nixpkgs, flake-compat, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       with builtins;
       let

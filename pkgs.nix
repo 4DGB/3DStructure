@@ -1,3 +1,6 @@
+#
+# Nix derivations for hic2structure and its dependencies
+#
 { pkgs }:
 
 let
