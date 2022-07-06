@@ -333,10 +333,11 @@ def run_lammps(
                 proc.check_returncode()
             except sub.CalledProcessError as e:
                 raise LAMMPSError(f"LAMMPS exited with error: {e}")
+            finally:
+                log_file = Path('sim.log')
+                if (copy_dest is not None) and ( log_file.exists() ):
+                    shutil.copy2( 'sim.log', copy_dest )
 
             data = read_dumpfile( Path('sim.dump') )
-
-            if copy_dest is not None:
-                shutil.copy2( 'sim.log', copy_dest )
 
     return data

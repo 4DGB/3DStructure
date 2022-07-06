@@ -27,7 +27,7 @@ let
   # hic2structure python package
   hic2structure = { python3 }: python3.pkgs.buildPythonPackage {
     pname = "hic2structure";
-    version = "0.2";
+    version = "0.3";
     src = ./.;
     propagatedBuildInputs = pydeps {inherit python3;};
     doCheck = false;
